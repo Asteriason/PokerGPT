@@ -97,8 +97,9 @@ class HeroAction:
         random_position_y = random.uniform(0.0, 0.05)
 
         # Calculate the absolute position of the button
-        abs_x = self.window.left    + int(self.window.width     * (button_x + random_position_x))
-        abs_y = self.window.top     + int(self.window.height    * (button_y + random_position_y))
+        abs_x = self.window["x"]      + int(self.window["width"]  * (button_x + random_position_x))
+        abs_y = self.window["y"]      + int(self.window["height"] * (button_y + random_position_y))
+
 
         random_duration = random.uniform(0.1, 0.2)
 
@@ -125,10 +126,11 @@ class HeroAction:
             return
 
         random_position_add = random.uniform(-0.02, 0.02)
-
+        
         # Calculate the absolute position of the 'Bet' button
-        abs_x = self.window.left    + int(self.window.width     * (0.945 + random_position_add))
-        abs_y = self.window.top     + int(self.window.height    * (0.809 + random_position_add))
+        abs_x = self.window["x"]      + int(self.window["width"]  * (0.945 + random_position_add))
+        abs_y = self.window["y"]      + int(self.window["height"] * (0.809 + random_position_add))
+
 
 
         random_cursor_speed = random.uniform(0.01, 0.1)
@@ -181,10 +183,11 @@ class HeroAction:
             return
 
         # Calculate absolute coordinates from relative coordinates
-        start_abs_x     = self.window.left  + int(self.window.width     * start_rel_x)
-        start_abs_y     = self.window.top   + int(self.window.height    * start_rel_y)
-        end_abs_x       = self.window.left  + int(self.window.width     * end_rel_x)
-        end_abs_y       = self.window.top   + int(self.window.height    * end_rel_y)
+        start_abs_x = self.window["x"]  + int(self.window["width"]  * start_rel_x)
+        start_abs_y = self.window["y"]  + int(self.window["height"] * start_rel_y)
+        end_abs_x   = self.window["x"]  + int(self.window["width"]  * end_rel_x)
+        end_abs_y   = self.window["y"]  + int(self.window["height"] * end_rel_y)
+
 
         # Perform the click and drag
         pyautogui.moveTo(start_abs_x, start_abs_y, duration=duration)

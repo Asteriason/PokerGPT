@@ -2,6 +2,14 @@ import os
 import openai
 import pygetwindow as gw
 from colorama import init
+import Quartz
+import os
+import multiprocessing
+
+os.environ["SDL_VIDEODRIVER"] = "quartz"
+if __name__ == '__main__':
+    multiprocessing.set_start_method('spawn')  # Fix macOS forking issues
+
 
 from game_state             import GameState
 from gui                    import GUI
@@ -62,27 +70,34 @@ def main():
         gui.run()
 
 
-
 def locate_poker_window():
-    """Locate the poker client window."""
+    """Locate the poker client window on macOS."""
+    
+    options = Quartz.kCGWindowListOptionOnScreenOnly
+    window_list = Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)
 
-    windows = gw.getWindowsWithTitle("No Limit")
+    poker_window = None
 
-    for window in windows:
+    for window in window_list:
+        owner_name = window.get("kCGWindowOwnerName", "")
+        window_bounds = window.get("kCGWindowBounds", {})
 
-        if "USD" in window.title or "Money" in window.title:
+        if owner_name == "PokerStars" and "Height" in window_bounds and "Width" in window_bounds:
+            print(f"✅ Found Poker Table: {window}")
 
-            print(f"Poker client window found. Size: {window.width}x{window.height}")
+            poker_window = {
+                "width": window_bounds["Width"],
+                "height": window_bounds["Height"],
+                "x": window_bounds["X"],
+                "y": window_bounds["Y"]
+            }
+            break
 
-            default_width   = 963
-            default_height  = 692
-
-            resize_poker_window( window, default_width, default_height )
-
-            return window
-        
-    print(f"Poker client window NOT Found.")
-    return None
+    if poker_window:
+        return poker_window
+    else:
+        print("❌ No Poker Table found. Make sure the game is open and visible.")
+        return None
 
 
 

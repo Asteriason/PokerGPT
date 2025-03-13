@@ -2,6 +2,10 @@ import os
 import time
 import re
 import pygetwindow as gw
+windows = gw.getWindowsAt(261, 29)  # Using your x, y coordinates
+print(windows)
+import Quartz
+import re
 
 class GameState:
 
@@ -59,19 +63,32 @@ class GameState:
  
 
     def extract_blinds_from_title(self):
-        title_contains = "No Limit" 
-        windows = gw.getWindowsWithTitle(title_contains)
+        """Extract the small blind and big blind from the PokerStars window title on macOS."""
+        options = Quartz.kCGWindowListOptionOnScreenOnly
+        window_list = Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)
 
-        for window in windows:
-            # Find all monetary amounts (assuming they follow a '$' symbol)
-            amounts = re.findall(r'\$(\d+\.?\d*)', window.title)
-            if amounts and len(amounts) >= 2:
-                # Assuming the first amount is the small blind and the second is the big blind
-                self.small_blind = float(amounts[0])
-                self.big_blind = float(amounts[1])
-                print(f"Small Blind: ${self.small_blind}, Big Blind: ${self.big_blind}")
-                return True
+        # DEBUG: Print all window information to see what's available
+        print("🔍 DEBUG: Dumping all window data...")
+        for window in window_list:
+            print(window)  # Print everything about the window to check what's inside
 
+        for window in window_list:
+            owner_name = window.get("kCGWindowOwnerName", "")
+            window_title = window.get("kCGWindowName", "")
+
+            if owner_name == "PokerStars" and "No Limit" in window_title:
+                # Find all monetary amounts (assuming they follow a '$' symbol)
+                amounts = re.findall(r'\$(\d+\.?\d*)', window_title)
+                
+                if amounts and len(amounts) >= 2:
+                    # Extract blinds
+                    self.small_blind = float(amounts[0])
+                    self.big_blind = float(amounts[1])
+                    print(f"✅ Small Blind: ${self.small_blind}, Big Blind: ${self.big_blind}")
+                    return True
+
+        print("❌ Could not extract blinds. Make sure PokerStars is open and visible.")
+        return False
 
 
     # Method to add an entry to the log

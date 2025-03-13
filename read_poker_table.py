@@ -5,7 +5,6 @@ import re
 import cv2
 import numpy as np
 import pyautogui
-import pytesseract
 import time
 from datetime import datetime
 
@@ -16,6 +15,13 @@ import time
 
 import tkinter as tk
 from PIL import Image, ImageTk
+import os
+import pytesseract
+
+# Force pytesseract to use macOS path
+os.environ["TESSDATA_PREFIX"] = "/opt/homebrew/share/tessdata"
+pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract"
+print(pytesseract.pytesseract.tesseract_cmd)
 
 
 class ReadPokerTable:
@@ -36,7 +42,7 @@ class ReadPokerTable:
 
         self.save_screenshots       = False
 
-        self.tesseract_cmd          = r'C:\Users\Admin\Desktop\PokerGPT\tesseract\tesseract.exe'
+        self.tesseract_cmd          = r'/opt/homebrew/bin/tesseract'
 
         self.cards_on_table         = False
 
@@ -57,12 +63,13 @@ class ReadPokerTable:
 
         self.window                 = poker_window
 
-        self.poker_window_width     = self.window.width
+        self.poker_window_width     = self.window["width"] 
 
-        self.poker_window_height    = self.window.height
+        self.poker_window_height    = self.window["height"] 
 
 
         self.window_activation_error_reported = False
+        print("DEBUG: self.window =", self.window)
 
 
          # Load the images
@@ -171,8 +178,8 @@ class ReadPokerTable:
         #print(f"Current window size: {self.window.width}x{self.window.height}")
 
         # Calculate absolute position based on cached relative coordinates
-        abs_x = int(self.window.left + self.poker_window_width * relative_x)
-        abs_y = int(self.window.top + self.poker_window_height * relative_y)
+        abs_x = int(self.window["x"] + self.window["width"] * relative_x)
+        abs_y = int(self.window["y"] + self.window["height"] * relative_y)
 
 
         #start_time = time.time()  # Start timing
@@ -1003,8 +1010,9 @@ class ReadPokerTable:
             return None, None
 
         # Calculate absolute screen coordinates
-        abs_x = self.window.left + int(rel_x * self.window.width)
-        abs_y = self.window.top + int(rel_y * self.window.height)
+        abs_x = int(self.window["x"] + rel_x * self.window["width"])
+        abs_y = int(self.window["y"] + rel_y * self.window["height"])
+
         return abs_x, abs_y
 
 
